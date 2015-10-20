@@ -50,6 +50,7 @@ abstract class feedreader implements newssource
     /**
      * @var array $posts holds the posts currently available in the feed
      * @var string $feedid unique identifier for the current feed
+     * @var boolean $force_get true means no conditional get; necessary for webpages with erroneous last-modified /etags
      * @var string $publicname is a string to prepend the title of each newsentry with
      * @var boolean $downloadqualifier specifies if we are allowed to load data from a remote ressource
      * TIMEOUT a constant defining how long the posts shall be cached (in seconds)
@@ -62,6 +63,7 @@ abstract class feedreader implements newssource
     private $requestdata = self::RESERVEDSPECIAL;
     protected $source = self::RESERVEDSPECIAL;
     protected $feedid = self::RESERVEDSPECIAL;
+    protected $force_get = false;
     protected $publicname = "";
     private $downloadqualifier = true;
     const TIMEOUT =  1800;
@@ -75,10 +77,11 @@ abstract class feedreader implements newssource
         return $this->posts;
     }
 
-    public function __construct($publicname, $feedid, $source) {
+    public function __construct($publicname, $feedid, $source, $force_get = false) {
         $this->source = $source;
         $this->publicname = $publicname;
         $this->feedid = $feedid;
+        $this->force_get = $force_get;
     }
 
     public function SetDownloadAllowed($input) {
@@ -161,9 +164,17 @@ abstract class feedreader implements newssource
      * @param $link string An URL to the posting
      * @return array The formatted posting
      */
-    protected final function AppendToPostings($date, $author, $text, $link) {
+    protected function AppendToPostings($date, $author, $text, $link) {
         $output = array ("timestamp" => $date, "author" => $author, "text" => $text, "link" => $link);
-        $this->posts[] = $output;
+        $this->WritePostingRaw($output);
+    }
+
+    /**
+     * Write a single posting to the posts[] array
+     * @param $postingdata
+     */
+    protected final function WritePostingRaw($postingdata) {
+        $this->posts[] = $postingdata;
     }
 
     /**
@@ -201,7 +212,16 @@ abstract class feedreader implements newssource
             }
             elseif ($this->IsDownloadAllowed()) {
                 //grabfromremote with conditional get
-                if (($this->GrabFromRemoteConditional($this->CacheFileAge(), $this->GetEtagFromCache())) == false) {
+                $cachefileage = $this->CacheFileAge();
+                $etag = $this->GetEtagFromCache();
+
+                if ($this->force_get) {
+                    //we must force an unconditional get because the feed does behave weird when attempting otherwise
+                    $cachefileage = self::RESERVEDSPECIAL;
+                    $etag = self::RESERVEDSPECIAL;
+                }
+
+                if (($this->GrabFromRemoteConditional($cachefileage, $etag)) == false) {
                     $this->ReadFromCache();
                 }
             }
@@ -305,7 +325,7 @@ abstract class feedreader implements newssource
         curl_setopt($curlhandler, CURLOPT_TIMEOUT, 10);
         curl_setopt($curlhandler, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curlhandler, CURLOPT_ENCODING, ""); //send all supported encoding types
-        curl_setopt($curlhandler, CURLOPT_USERAGENT, 'TUDnewsscraperbot/0.1 (+http://github.com/morido/tudnewsscraper)');
+        curl_setopt($curlhandler, CURLOPT_USERAGENT, 'TUDnewsscraperbot/0.2 (+http://github.com/morido/tudnewsscraper)');
 
         return $curlhandler;
     }

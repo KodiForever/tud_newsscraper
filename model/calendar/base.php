@@ -16,7 +16,7 @@ final class feedsorter extends \base\feedsorter {
     }
 
     protected function sortItems($items, $itemsToReturn) {
-        //Sort the resulting array with the newest posting first
+        //Sort the resulting array with the next event (starttime) first
         foreach ($items as $key => $value) {
             $timestamp[$key] = $value["timestamp"];
         }
@@ -32,8 +32,8 @@ final class feedsorter extends \base\feedsorter {
                     //we are out of bounds; no more items available
                     break;
                 }
-                if ($items[$input_iterator]["timestamp"] >= time()) {
-                    //the starting time of the current item is in the future; append it
+                if ($items[$input_iterator]["timestamp_end"] >= time()) {
+                    //the end time of the current item is in the future; append it
                     $output[] = $items[$input_iterator];
                     $output_iterator++;
                 }

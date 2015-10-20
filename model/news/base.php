@@ -13,7 +13,16 @@ final class feedsorter extends \base\feedsorter {
         }
         array_multisort($timestamp, SORT_DESC, $items);
 
-        //Emit the n newest postings
-        return array_slice($items, 0, $itemsToReturn);
+        //omit all items in the future
+        //we have to loop again, since we need the items to be in order before this makes sense
+        $future_offset = 0;
+        foreach ($items as $item) {
+            if ($item["timestamp"] > time()) {
+                $future_offset++;
+            }
+        }
+
+        //Emit the n newest postings except for future ones
+        return array_slice($items, $future_offset, $itemsToReturn+$future_offset);
     }
 }

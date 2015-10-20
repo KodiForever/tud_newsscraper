@@ -21,10 +21,6 @@ abstract class webpagereader extends feedreader {
         if ($formatted_dateraw != false) {
             $unix_timestamp = mktime(0, 0, 0, $formatted_dateraw['tm_mon']+1, $formatted_dateraw['tm_mday'], $formatted_dateraw['tm_year']+1900);
 
-            //ignore postings in the "future". Apparently people do typos while hacking in their news -- sorry but we cannot reasonably handle this here.
-            if ($unix_timestamp > time()) {
-                $unix_timestamp = 0 ; //date back to 1970
-            }
             return $unix_timestamp;
         }
         else {
@@ -108,6 +104,16 @@ class webcmsreader extends webpagereader {
  * intended for merely unparsable (i.e. unstructured) junk
  */
 final class unstructured_with_heading extends webcmsreader {
+    /**
+     * @var mixed Used to overwrite the heading from the page
+     */
+    private $heading = false;
+
+    public function __construct($publicname, $feedid, $source, $heading = false, $force_get = false) {
+        parent::__construct($publicname, $feedid, $source, $force_get = false);
+        $this->heading = $heading;
+    }
+
 
     protected function processItems() {
         //ensure that we are not appending to old data (i.e. if this method is called more than once)
@@ -119,11 +125,16 @@ final class unstructured_with_heading extends webcmsreader {
         $date = $this->convertDate($metadata->text());
         $link = $this->source;
 
-        $items = $entirepage->find('h1.documentFirstHeading');
-        foreach ($items as $item) {
-            $text = $this->tidyText($this->prependText($item->text()));
+        if ($this->heading === false) {
+            $items = $entirepage->find('h1.documentFirstHeading');
+            foreach ($items as $item) {
+                $text = $this->tidyText($this->prependText($item->text()));
 
-            $this->AppendToPostings($date, $author, $text, $link);
+                $this->AppendToPostings($date, $author, $text, $link);
+            }
+        }
+        else {
+            $this->AppendToPostings($date, $author, $this->prependText($this->heading), $link);
         }
     }
 }

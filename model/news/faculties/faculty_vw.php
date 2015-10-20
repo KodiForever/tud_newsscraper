@@ -14,32 +14,6 @@ use news\webpagereader;
 
 require_once dirname(__FILE__).'/../webpage.php';
 
-final class lst_schlag extends webpagereader {
-
-    protected function processItems() {
-        //ensure that we are not appending to old data (i.e. if this method is called more than once)
-        $this->SetPostingsToEmpty();
-
-        $author = "n/a";
-        $link = $this->source;
-
-        $items = htmlqp($this->GetRequestData(), 'table table tr[valign="top"]');
-        foreach ($items as $item) {
-            $date = $item->children('td:first')->text();
-            $date = $this->convertDate($date, "%d.%m.%Y");
-            // stop if no date is given
-            if ($date === false) {
-                break;
-            }
-            $text = $item->children('td:last')->text();
-            $text = $this->tidyText($this->prependText($text));
-
-
-            $this->AppendToPostings($date, $author, $text, $link);
-        }
-    }
-}
-
 final class lst_fricke extends webpagereader {
 
     protected function processItems() {
@@ -111,22 +85,24 @@ final class lst_ludwig extends webcmsreader {
 }
 
 class Chairs extends chairreturner {
-    
+
     public function __construct() {
-        $this->chairs[] = new webcmsreader("Fakultät", "vwfakultaet", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw');
-        $this->chairs[] = new webcmsreader("Becker", "vwbecker", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/oeko');
-        $this->chairs[] = new webcmsreader("Lippold", "vwlippold", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/gsa/');
-        $this->chairs[] = new webcmsreader("Maier", "vwmaier", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/svt/index_html');
-        $this->chairs[] = new webcmsreader("Schiller", "vwschiller", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/tvp/index_html');
-        $this->chairs[] = new lst_schlag("Schlag", "vwschlag", 'http://vplno2.vkw.tu-dresden.de/psycho/content/home/d_news.html');
+        $this->chairs[] = new webcmsreader("Fakultät", "vwfakultaet", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw', true);
+        $this->chairs[] = new webcmsreader("Becker", "vwbecker", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/oeko', true);
+        $this->chairs[] = new webcmsreader("Lippold", "vwlippold", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/gsa/', true);
+        $this->chairs[] = new webcmsreader("Maier", "vwmaier", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/svt/index_html', true);
+        $this->chairs[] = new webcmsreader("Schiller", "vwschiller", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/tvp/index_html', true);
+        $this->chairs[] = new webcmsreader("Schlag", "vwschlag", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ivs/vpsy');
         $this->chairs[] = new webcmsreader("Stephan", "vwstephan", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ibb/eb');
-        $this->chairs[] = new webcmsreader("Fengler", "vwfengler", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ibv/gvb/index_html');
-        $this->chairs[] = new webcmsreader("Stopka", "vwstopka", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/iwv/kom/');
-        $this->chairs[] = new webcmsreader("Freyer", "vwfreyer", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/iwv/tou/index_html');
+        $this->chairs[] = new webcmsreader("Fengler", "vwfengler", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ibv/gvb/index_html', true);
+        $this->chairs[] = new webcmsreader("Stopka", "vwstopka", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/iwv/kom/aktuelles');
+        $this->chairs[] = new webcmsreader("Freyer", "vwfreyer", 'http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/iwv/tou/index_html', true);
         $this->chairs[] = new lst_fricke("Fricke", "vwfricke", "http://www.ifl.tu-dresden.de/?dir=Professur/Aktuelles");
         $this->chairs[] = new unstructured_with_heading("Ludwig", "vwludwig", "http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/vlo/studium/aktuelles");
         $this->chairs[] = new unstructured_with_heading("Wieland", "vwwieland", "http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/iwv/vwipol/Aktuelles");
         $this->chairs[] = new unstructured_with_heading("Lämmer", "vwlaemmer", "http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/iwv/vos/news/index_html");
-        $this->chairs[] = new webcmsreader("Nachtigall", "vwnachtigall", "http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ila/vkstrl");
+        $this->chairs[] = new webcmsreader("Nachtigall", "vwnachtigall", "http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ila/vkstrl", true);
+        $this->chairs[] = new webcmsreader("Krimmling", "vwkrimmling", "http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/vis/vlp", true);
+	$this->chairs[] = new webcmsreader("Schütte", "vwschuette", "http://tu-dresden.de/die_tu_dresden/fakultaeten/vkw/ibv/vsys", true);
     }
 }

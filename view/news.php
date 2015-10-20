@@ -16,5 +16,5 @@ $feedsgatherer->addFeed(new \news\faculty_ww\Chairs());
 $feeds = $feedsgatherer->getAllFeeds();
 
 
-$newsformatter = new \output\newsfeed_formatter($feeds, 5);
+$newsformatter = new \output\newsfeed_formatter($feeds, 10);
 $newsformatter->generateHTML();
