@@ -1,0 +1,12 @@
+{
+    "name": "morido/tud_newsscraper",
+    "authors": [
+        {
+            "name": "Moritz Dorka",
+            "email": "morido@web.de"
+        }
+    ],
+    "require": {
+        "querypath/querypath": "3.0.2"
+    }
+}
